@@ -97,7 +97,13 @@ async function createDockerEnvVarFile(envVarFilePath: string) {
 
     const verbose = inputVerbose === true ? true : (inputVerbose === false ? false : systemVerbose === true);
 
-    const deploymentClient = "mcr.microsoft.com/appsvc/staticappsclient:stable";
+    // Allow overriding the deployment client image via environment variable.
+    // Priority: AZURE_STATIC_WEB_APPS_CLIENT_IMAGE -> SWA_DEPLOYMENT_CLIENT -> default image
+    const DEPLOYMENT_CLIENT_IMAGE_ENV = 'AZURE_STATIC_WEB_APPS_CLIENT_IMAGE';
+    const deploymentClientFromEnv = process.env[DEPLOYMENT_CLIENT_IMAGE_ENV] || process.env['SWA_DEPLOYMENT_CLIENT'];
+    const deploymentClient = deploymentClientFromEnv && deploymentClientFromEnv.length > 0
+        ? deploymentClientFromEnv
+        : "mcr.microsoft.com/appsvc/staticappsclient:stable";
     const containerWorkingDir = "/working_dir";
 
     addInputStringToString("APP_LOCATION", appLocation, appLocationInputName);
