@@ -17,6 +17,8 @@ const defaultHostnameInputName = 'default_hostname';
 const deploymentEnvironmentInputName = 'deployment_environment';
 const productionBranchInputName = 'production_branch';
 const dataApiLocationInputName = 'data_api_location';
+// New input to control docker pull behavior: always, missing, or never
+const dockerPullPolicyInputName = 'docker_pull_policy';
 
 async function run() {
     const envVarFilePath: string = path.join(__dirname, 'env.list');
@@ -91,6 +93,7 @@ async function createDockerEnvVarFile(envVarFilePath: string) {
     const apiToken: string = process.env[apiTokenInputName] || tl.getInput(apiTokenInputName, false) || "";
     const accessToken: string = process.env[accessTokenInputName] || tl.getInput(accessTokenInputName, false) || "";
     const defaultHostname: string = process.env[defaultHostnameInputName] || tl.getInput(defaultHostnameInputName, false) || "";
+    const dockerPullPolicy: string = tl.getInput(dockerPullPolicyInputName, false) || "";
     
     const systemVerbose = getNullableBooleanFromString(process.env['SYSTEM_DEBUG']);
     const inputVerbose = getNullableBooleanFromString(tl.getInput('verbose', false));
@@ -126,6 +129,8 @@ async function createDockerEnvVarFile(envVarFilePath: string) {
     addInputStringToString("DEPLOYMENT_TOKEN", apiToken, apiTokenInputName);
     addInputStringToString("AZURE_ACCESS_TOKEN", accessToken, accessTokenInputName);
     addInputStringToString("DEFAULT_HOSTNAME", defaultHostname, defaultHostnameInputName);
+    // Add docker pull policy to env so the launcher script can honor it. If empty, launcher will use default.
+    addInputStringToString("SWA_DOCKER_PULL", dockerPullPolicy, dockerPullPolicyInputName);
     
     process.env['SWA_DEPLOYMENT_CLIENT'] = deploymentClient;
     process.env['SWA_WORKING_DIR'] = workingDirectory;
