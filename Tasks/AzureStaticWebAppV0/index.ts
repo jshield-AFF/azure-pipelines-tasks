@@ -130,7 +130,12 @@ async function createDockerEnvVarFile(envVarFilePath: string) {
     addInputStringToString("AZURE_ACCESS_TOKEN", accessToken, accessTokenInputName);
     addInputStringToString("DEFAULT_HOSTNAME", defaultHostname, defaultHostnameInputName);
     // Add docker pull policy to env so the launcher script can honor it. If empty, launcher will use default.
-    addInputStringToString("SWA_DOCKER_PULL", dockerPullPolicy, dockerPullPolicyInputName);
+    // Normalize and validate the input: allowed values are always, missing, never (case-insensitive)
+    const dockerPullPolicyNormalized = (dockerPullPolicy || "").trim().toLowerCase();
+    if (dockerPullPolicyNormalized.length > 0 && !["always", "missing", "never"].includes(dockerPullPolicyNormalized)) {
+        throw new Error("Invalid docker_pull_policy '" + dockerPullPolicy + "'. Valid values: always, missing, never.");
+    }
+    addInputStringToString("SWA_DOCKER_PULL", dockerPullPolicyNormalized, dockerPullPolicyInputName);
     
     process.env['SWA_DEPLOYMENT_CLIENT'] = deploymentClient;
     process.env['SWA_WORKING_DIR'] = workingDirectory;
