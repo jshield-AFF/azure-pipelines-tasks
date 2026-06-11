@@ -176,6 +176,19 @@
       "defaultValue": "",
       "required": false,
       "helpMarkDown": "Default hostname for deployment. Not required if passed as an environment variable"
+    },
+    {
+      "name": "docker_pull_policy",
+      "type": "pickList",
+      "label": "Docker pull policy",
+      "defaultValue": "always",
+      "required": false,
+      "options": {
+        "always": "always",
+        "missing": "missing",
+        "never": "never"
+      },
+      "helpMarkDown": "Controls docker image pull behavior for the deployment client. Values: 'always' (always pull image), 'missing' (pull only if image is missing), 'never' (do not pull). This input is case-insensitive and is written into SWA_DOCKER_PULL for the launch script."
     }
   ],
   "execution": {
